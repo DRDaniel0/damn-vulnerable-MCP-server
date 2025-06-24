@@ -1,0 +1,38 @@
+name: Generate and Upload SBOM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      security-events: write  # Required for dependency submission
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run ORT to generate SBOM
+      uses: oss-review-toolkit/ort-ci-github-action@v1
+      with:
+        # Generate SPDX JSON format (required for GitHub submission)
+        ort-cli-report-args: '-f SpdxDocument -O SpdxDocument=output.file.formats=json'
+        # Allow packages with version ranges
+        allow-dynamic-versions: 'true'
+        
+    - name: Upload SBOM artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom
+        path: ort-results/
+        
+    - name: Submit SBOM to GitHub Dependency Graph
+      uses: advanced-security/spdx-dependency-submission-action@v0.1.1
+      with:
+        filePath: "ort-results/bom.spdx.json"
