@@ -30,9 +30,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: sbom
-        path: ort-results/
+        path: /home/runner/.ort/ort-results/bom.spdx.json
         
     - name: Submit SBOM to GitHub Dependency Graph
       uses: advanced-security/spdx-dependency-submission-action@v0.1.1
       with:
-        filePath: "ort-results/bom.spdx.json"
+        filePath: "/home/runner/.ort/ort-results/bom.spdx.json"
